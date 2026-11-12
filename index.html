@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Push vs Pull – Genex Model School</title>
+<style>
+:root{--blue:#0052CC;--cyan:#00A3EE;--red:#E63946;--bg:#F4F8FC;--ink:#172B4D;--card:#fff;--ok:#1f9d55;--sh:0 6px 20px rgba(0,82,204,.12)}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"Noto Sans Bengali","Nirmala UI","Vrinda","Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;font-size:17px;overflow-x:hidden}
+button{font:inherit;cursor:pointer;border:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+h2,h3{margin:0 0 .5rem}
+header{background:linear-gradient(120deg,var(--blue),var(--cyan));color:#fff;padding:14px 16px}
+.hd{max-width:1180px;margin:auto;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;justify-content:space-between}
+.brand b{font-size:1.1rem;letter-spacing:.06em;display:block}.brand small{opacity:.9;letter-spacing:.1em;font-size:.7rem}
+.title{text-align:center;flex:1 1 260px}.title h1{margin:0;font-size:2rem;letter-spacing:.04em}.title span{opacity:.95}
+.badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.badge{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5);padding:4px 12px;border-radius:99px;font-size:.85rem;font-weight:700}
+.hbtn{background:#fff;color:var(--blue);padding:6px 14px;border-radius:99px;font-weight:700;font-size:.85rem}
+.welcome{max-width:1180px;margin:14px auto 0;padding:0 14px;text-align:center;font-weight:700;color:var(--blue)}
+main{max-width:1180px;margin:auto;padding:14px;display:grid;gap:18px}
+.card{background:var(--card);border-radius:20px;box-shadow:var(--sh);padding:16px;min-width:0}
+.card h2{color:var(--blue);font-size:1.3rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr}.title h1{font-size:1.6rem}}
+@media(min-width:520px) and (max-width:860px){.grid3{grid-template-columns:1fr 1fr}}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.chip{flex:1 1 220px;border:2px dashed #c4d4ea;border-radius:14px;padding:6px 12px;font-size:.95rem;transition:.25s;opacity:.7}
+.chip b{display:block;font-size:1.05rem}
+.chip.push.on{background:#E6EFFF;border:2px solid var(--blue);opacity:1;color:var(--blue)}
+.chip.pull.on{background:#FFE9EB;border:2px solid var(--red);opacity:1;color:var(--red)}
+#stage{width:100%;height:auto;display:block;border-radius:16px;border:2px solid #dbe6f5;background:#eaf5ff}
+.status{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;margin:10px 0}
+#statusTxt{font-size:1.25rem;font-weight:800;color:var(--blue)}
+.meter{flex:1 1 180px;height:12px;background:#e3ecf7;border-radius:9px;overflow:hidden}.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--red))}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.big{padding:16px 10px;border-radius:18px;color:#fff;font-weight:800;font-size:1.3rem;box-shadow:0 6px 0 rgba(0,0,0,.2);transition:transform .1s}
+.big:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.big small{display:block;font-weight:600;font-size:.85rem;opacity:.9}
+#bPush{background:var(--blue)}#bPull{background:var(--red)}
+.toast{min-height:3.2em;margin-top:12px;padding:10px 14px;border-radius:14px;background:#E8F6FF;border-left:6px solid var(--cyan);font-weight:700}
+.note{font-size:.88rem;color:#51627D}
+label{font-weight:700;display:block;margin:10px 0 4px}
+input[type=range]{width:100%;accent-color:var(--blue);height:32px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button,.sm{background:#E8F0FB;color:var(--ink);padding:9px 14px;border-radius:12px;font-weight:700;border:2px solid transparent}
+.seg button[aria-pressed=true]{background:var(--blue);color:#fff}
+.sm.red{background:var(--red);color:#fff}.sm.blue{background:var(--blue);color:#fff}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+table{width:100%;border-collapse:collapse}td{padding:5px 4px;border-bottom:1px solid #e3ecf7}td:last-child{font-weight:800;color:var(--blue);text-align:right}
+#hist{list-style:none;margin:8px 0 0;padding:0;max-height:150px;overflow:auto;font-size:.92rem}
+#hist li{padding:4px 10px;margin-bottom:4px;border-radius:9px;background:#F1F6FD;border-left:5px solid}
+#hist li.push{border-color:var(--blue)}#hist li.pull{border-color:var(--red)}
+.ex{margin:.4rem 0 0;padding-left:1.2rem}
+.demo{width:100%;height:auto}
+.pp{border-top:6px solid var(--blue)}.pl{border-top:6px solid var(--red)}
+.rl{text-align:center;border-radius:16px;border:2px solid #e3ecf7;padding:12px}
+.rl .em{font-size:3rem;line-height:1.2}
+.rl .two{display:flex;gap:8px;justify-content:center;margin:8px 0}
+.rl .two button{flex:1;padding:8px;border-radius:12px;color:#fff;font-weight:800}
+.rl .fb{min-height:3em;font-size:.92rem;font-weight:600}
+.rl.good{border-color:var(--ok);background:#F0FBF4}.rl.bad{border-color:var(--red);background:#FFF3F4}
+.qhead{display:flex;justify-content:space-between;font-weight:800;color:var(--blue)}
+.bar{height:10px;background:#e3ecf7;border-radius:9px;overflow:hidden;margin:6px 0 10px}.bar i{display:block;height:100%;background:var(--cyan);transition:width .3s}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;padding:12px 14px;border-radius:14px;background:#F1F6FD;border:2px solid #d5e2f4;font-weight:600}
+.opt.ok{background:#E3F8EA;border-color:var(--ok)}.opt.no{background:#FFE9EB;border-color:var(--red)}
+.fin{text-align:center;padding:10px}.fin .n{font-size:3rem;font-weight:900;color:var(--blue)}
+.qfb{min-height:2.6em;margin:8px 0;font-weight:700}
+details{background:#fff;border-radius:20px;box-shadow:var(--sh);padding:14px 16px}
+summary{font-weight:800;color:var(--blue);cursor:pointer;font-size:1.2rem}
+footer{text-align:center;padding:18px;color:#51627D;font-size:.9rem}
+/* animated direction diagram */
+.slideR{animation:sR 2.4s ease-in-out infinite}.slideL{animation:sL 2.4s ease-in-out infinite}
+@keyframes sR{0%{transform:translateX(0)}60%,100%{transform:translateX(90px)}}
+@keyframes sL{0%{transform:translateX(90px)}60%,100%{transform:translateX(0)}}
+.pulseA{animation:pa 1s ease-in-out infinite}@keyframes pa{50%{opacity:.4}}
+/* projector mode */
+body.proj .nop{display:none!important}body.proj main{max-width:1500px}body.proj #statusTxt{font-size:1.8rem}body.proj .big{font-size:1.8rem;padding:24px}body.proj body{font-size:20px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="hd">
+ <div class="brand"><b>GENEX MODEL SCHOOL</b><small>INTERACTIVE STEM LEARNING LAB</small></div>
+ <div class="title"><h1>PUSH vs PULL</h1><span>বলের ধারণা | Concept of Force</span></div>
+ <div class="badges"><span class="badge">Grade 5</span><span class="badge">Science</span>
+  <button class="hbtn" id="bProj" aria-pressed="false" aria-label="প্রজেক্টর মোড চালু বা বন্ধ করো">📽 প্রজেক্টর</button>
+  <button class="hbtn" id="bFull" aria-label="ফুলস্ক্রিন">⛶ Fullscreen</button></div>
+</div></header>
+<p class="welcome nop">চলো, খেলার মাধ্যমে বলের ধাক্কা ও টানের প্রভাব আবিষ্কার করি!</p>
+
+<main>
+<!-- ============ SIMULATION ============ -->
+<section class="card" aria-label="সিমুলেশন">
+ <div class="chips">
+  <div class="chip push" id="chPush"><b>ধাক্কা (PUSH)</b>বস্তু থেকে দূরে ঠেলে দেওয়া</div>
+  <div class="chip pull" id="chPull"><b>টান (PULL)</b>বস্তুকে নিজের দিকে টেনে আনা</div>
+ </div>
+ <svg id="stage" viewBox="0 0 800 320" role="img" aria-label="খেলনা গাড়ি, বামে ধাক্কা দেওয়ার মানুষ, ডানে দড়ি টানার মানুষ">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfeaff"/><stop offset="1" stop-color="#F4F8FC"/></linearGradient></defs>
+  <rect width="800" height="320" fill="url(#sky)"/>
+  <circle cx="700" cy="52" r="26" fill="#FFD166"/>
+  <ellipse cx="250" cy="55" rx="46" ry="14" fill="#fff" opacity=".9"/><ellipse cx="285" cy="45" rx="30" ry="12" fill="#fff" opacity=".9"/>
+  <rect y="222" width="800" height="50" fill="#51627D"/><rect y="222" width="800" height="5" fill="#3d4b63"/>
+  <path d="M0 250H800" stroke="#fff" stroke-width="3" stroke-dasharray="26 18" opacity=".7"/>
+  <rect x="74" y="206" width="8" height="16" fill="#E63946"/><rect x="718" y="206" width="8" height="16" fill="#E63946"/>
+  <g id="ruler" font-size="11" fill="#172B4D" text-anchor="middle"></g>
+  <!-- PUSH person (left) -->
+  <g><circle cx="38" cy="148" r="15" fill="#F2C9A0"/><path d="M23 145a15 13 0 0 1 30 0z" fill="#172B4D"/>
+   <rect x="22" y="164" width="32" height="56" rx="10" fill="#0052CC"/>
+   <line id="armL" x1="48" y1="182" x2="80" y2="189" stroke="#0052CC" stroke-width="9" stroke-linecap="round"/>
+   <circle id="handL" cx="80" cy="189" r="9" fill="#F2C9A0"/></g>
+  <!-- PULL person (right) -->
+  <g><circle cx="762" cy="148" r="15" fill="#F2C9A0"/><path d="M747 145a15 13 0 0 1 30 0z" fill="#172B4D"/>
+   <rect x="746" y="164" width="32" height="56" rx="10" fill="#E63946"/>
+   <line x1="752" y1="182" x2="736" y2="189" stroke="#E63946" stroke-width="9" stroke-linecap="round"/>
+   <path id="rope" d="M0 0" fill="none" stroke="#8a5a2b" stroke-width="4" stroke-linecap="round"/>
+   <circle cx="736" cy="189" r="9" fill="#F2C9A0"/></g>
+  <!-- CAR -->
+  <g id="car">
+   <g id="ml" opacity="0" stroke="#00A3EE" stroke-width="4" stroke-linecap="round"><line x1="-62" y1="-30" x2="-110" y2="-30"/><line x1="-62" y1="-18" x2="-130" y2="-18"/><line x1="-62" y1="-6" x2="-100" y2="-6"/></g>
+   <rect x="-52" y="-40" width="104" height="32" rx="10" fill="#E63946"/>
+   <path d="M-28 -40L-16 -64H18L32 -40z" fill="#E63946"/>
+   <path d="M-20 -42L-11 -60H-1V-42zM5 -42V-60H16L26 -42z" fill="#BDE6FF"/>
+   <rect x="-52" y="-24" width="104" height="5" fill="#0052CC"/>
+   <circle cx="47" cy="-31" r="5" fill="#FFD166"/><circle cx="-47" cy="-31" r="4" fill="#fff"/><circle cx="54" cy="-22" r="4" fill="#172B4D"/>
+   <g id="w1"><circle r="13" fill="#172B4D"/><circle r="6" fill="#CBD5E1"/><path d="M-6 0H6M0 -6V6" stroke="#172B4D" stroke-width="2"/></g>
+   <g id="w2"><circle r="13" fill="#172B4D"/><circle r="6" fill="#CBD5E1"/><path d="M-6 0H6M0 -6V6" stroke="#172B4D" stroke-width="2"/></g>
+  </g>
+  <!-- force arrow -->
+  <g id="arrow" opacity="0"><polygon id="arrowP" points="-60,-9 20,-9 20,-22 60,0 20,22 20,9 -60,9" fill="#0052CC"/><text id="arrowT" y="-30" text-anchor="middle" font-size="15" font-weight="700" fill="#172B4D">বল (Force)</text></g>
+ </svg>
+ <div class="status"><span id="statusTxt" aria-live="polite">স্থির অবস্থায় আছে</span><div class="meter" aria-hidden="true"><i id="meter"></i></div></div>
+ <div class="acts">
+  <button class="big" id="bPush" aria-label="ধাক্কা দাও – গাড়ি ডানদিকে যাবে">✋ ধাক্কা দাও (PUSH →)<small>বামদিক থেকে ঠেলো</small></button>
+  <button class="big" id="bPull" aria-label="টানো – গাড়ি বামদিকে আসবে">🪢 টানো (← PULL)<small>ডানদিক থেকে টানো</small></button>
+ </div>
+ <div class="toast" id="toast" role="status" aria-live="polite">উপরের ধাক্কা বা টান বোতাম চাপো এবং গাড়িটি কী করে দেখো!</div>
+ <p class="note">ℹ️ এটি একটি সরলীকৃত দৃশ্যমান মডেল; নিখুঁত বাস্তব পরীক্ষা নয়। (কিবোর্ডে ← → চাপলেও চলবে)</p>
+</section>
+
+<div class="grid2 nop">
+ <!-- ============ EXPERIMENT ============ -->
+ <section class="card" aria-label="পরীক্ষা">
+  <h2>🔬 EXPLORE &amp; EXPERIMENT</h2>
+  <label for="str">বল প্রয়োগের মাত্রা: <span id="strV">3</span></label>
+  <input type="range" id="str" min="1" max="5" step="1" value="3">
+  <p class="note">বল যত বেশি, একই ভরের বস্তুর ত্বরণ সাধারণত তত বেশি।</p>
+  <label id="frL">ঘর্ষণ (Friction)</label>
+  <div class="seg" role="group" aria-labelledby="frL" id="fr">
+   <button data-f="low" aria-pressed="false">কম ঘর্ষণ (Low)</button>
+   <button data-f="mid" aria-pressed="true">মাঝারি ঘর্ষণ (Medium)</button>
+   <button data-f="high" aria-pressed="false">বেশি ঘর্ষণ (High)</button>
+  </div>
+  <div class="row"><button class="sm red" id="bReset">↺ আবার শুরু করো (RESET)</button><button class="sm blue" id="bPause" aria-pressed="false">⏸ থামাও (Pause)</button></div>
+ </section>
+ <!-- ============ LIVE DATA ============ -->
+ <section class="card" aria-label="পর্যবেক্ষণ">
+  <h2>📊 পর্যবেক্ষণ (Live Data)</h2>
+  <table>
+   <tr><td>বর্তমান ক্রিয়া (Action)</td><td id="dAct">None</td></tr>
+   <tr><td>বলের দিক (Force)</td><td id="dForce">None</td></tr>
+   <tr><td>গতির দিক (Movement)</td><td id="dMove">—</td></tr>
+   <tr><td>গতির মাত্রা (Speed)</td><td id="dSpeed">At Rest</td></tr>
+   <tr><td>ঘর্ষণ (Friction)</td><td id="dFric">Medium</td></tr>
+   <tr><td>অবস্থান (Position)</td><td id="dPos">50</td></tr>
+  </table>
+  <h3 style="margin-top:12px">পরীক্ষার ইতিহাস</h3>
+  <ul id="hist" aria-live="polite"></ul>
+  <div class="row"><button class="sm" id="bClear">🗑 ইতিহাস মুছো</button></div>
+ </section>
+</div>
+
+<!-- ============ EXPLANATION CARDS ============ -->
+<div class="grid2 nop">
+ <section class="card pp"><h2>ধাক্কা (PUSH)</h2>
+  <svg class="demo" viewBox="0 0 300 110" aria-hidden="true"><rect y="86" width="300" height="10" fill="#51627D"/><circle cx="30" cy="40" r="12" fill="#F2C9A0"/><rect x="18" y="54" width="24" height="32" rx="8" fill="#0052CC"/><path d="M40 66H88" stroke="#0052CC" stroke-width="8" stroke-linecap="round"/>
+   <g class="slideR"><rect x="92" y="54" width="70" height="22" rx="8" fill="#E63946"/><circle cx="108" cy="80" r="9" fill="#172B4D"/><circle cx="148" cy="80" r="9" fill="#172B4D"/></g>
+   <polygon class="pulseA" points="190,22 230,22 230,12 260,30 230,48 230,38 190,38" fill="#0052CC"/></svg>
+  <p>যখন আমরা কোনো বস্তুকে নিজের থেকে দূরে সরানোর জন্য বল প্রয়োগ করি, তখন তাকে ধাক্কা বা Push বলে।</p>
+  <ul class="ex"><li>দরজা ঠেলে খোলা।</li><li>ফুটবলে লাথি মারা।</li><li>ট্রলির গাড়ি সামনে ঠেলে দেওয়া।</li></ul></section>
+ <section class="card pl"><h2>টান (PULL)</h2>
+  <svg class="demo" viewBox="0 0 300 110" aria-hidden="true"><rect y="86" width="300" height="10" fill="#51627D"/><circle cx="270" cy="40" r="12" fill="#F2C9A0"/><rect x="258" y="54" width="24" height="32" rx="8" fill="#E63946"/><path d="M258 66H170" stroke="#8a5a2b" stroke-width="4" stroke-linecap="round"/>
+   <g class="slideL" style="transform:translateX(0)"><rect x="40" y="54" width="70" height="22" rx="8" fill="#0052CC"/><circle cx="56" cy="80" r="9" fill="#172B4D"/><circle cx="96" cy="80" r="9" fill="#172B4D"/></g>
+   <polygon class="pulseA" points="110,22 70,22 70,12 40,30 70,48 70,38 110,38" fill="#E63946" transform="translate(40 0)"/></svg>
+  <p>যখন আমরা কোনো বস্তুকে নিজের দিকে আনার জন্য বল প্রয়োগ করি, তখন তাকে টান বা Pull বলে।</p>
+  <ul class="ex"><li>দড়ি টেনে কিছু সরানো।</li><li>ড্রয়ার টেনে খোলা।</li><li>খেলনা গাড়ি দড়ি দিয়ে টানা।</li></ul></section>
+</div>
+<section class="card nop"><h2>দিক বোঝার ডায়াগ্রাম</h2>
+ <div class="grid2">
+  <div><b style="color:var(--blue)">PUSH = তোমার থেকে দূরে (Away from you)</b>
+   <svg class="demo" viewBox="0 0 300 50" aria-hidden="true"><circle cx="20" cy="25" r="12" fill="#0052CC"/><text x="20" y="49" font-size="10" text-anchor="middle">তুমি</text><g class="slideR"><rect x="50" y="12" width="40" height="26" rx="8" fill="#E63946"/></g><path d="M40 25H190" stroke="#0052CC" stroke-width="3" stroke-dasharray="6 5"/></svg></div>
+  <div><b style="color:var(--red)">PULL = তোমার দিকে (Towards you)</b>
+   <svg class="demo" viewBox="0 0 300 50" aria-hidden="true"><circle cx="20" cy="25" r="12" fill="#E63946"/><text x="20" y="49" font-size="10" text-anchor="middle">তুমি</text><g class="slideL"><rect x="50" y="12" width="40" height="26" rx="8" fill="#0052CC"/></g><path d="M40 25H190" stroke="#E63946" stroke-width="3" stroke-dasharray="6 5"/></svg></div>
+ </div></section>
+
+<!-- ============ REAL LIFE ============ -->
+<section class="card nop"><h2>আমাদের দৈনন্দিন জীবনে PUSH ও PULL</h2>
+ <p>স্কোর: <b id="rlScore">0</b> / 6</p><div class="grid3" id="rl"></div></section>
+
+<!-- ============ PREDICT + QUIZ ============ -->
+<div class="grid2 nop">
+ <section class="card"><h2>🤔 আগে অনুমান করো!</h2><div id="predict"></div></section>
+ <section class="card"><h2>🏆 তুমি কি Push &amp; Pull Expert?</h2><div id="quiz"></div></section>
+</div>
+
+<!-- ============ TEACHER ============ -->
+<details class="nop"><summary>👩‍🏫 Teacher Guide (শিক্ষকের নির্দেশিকা)</summary>
+ <h3 style="margin-top:12px">শিখন উদ্দেশ্য</h3><p>শিক্ষার্থীরা ধাক্কা (Push) ও টান (Pull)-এর পার্থক্য বুঝবে এবং বলের দিক ও বস্তুর গতির সম্পর্ক পর্যবেক্ষণ করবে।</p>
+ <h3>শিক্ষক যা ব্যাখ্যা করবেন</h3><ul><li>ধাক্কায় বস্তু প্রয়োগকারী থেকে দূরে যায়; টানে প্রয়োগকারীর দিকে আসে।</li><li>বল বাড়ালে গতি বেশি বদলায়; ঘর্ষণ গাড়িকে থামিয়ে দেয়।</li><li>এটি একটি সরলীকৃত মডেল।</li></ul>
+ <h3>ক্লাসে জিজ্ঞাসার প্রশ্ন</h3><ul><li>What happens when we push the car? (গাড়িকে ধাক্কা দিলে কী হয়?)</li><li>Why does it move towards the right? (কেন ডানদিকে যায়?)</li><li>What changes when we pull from the other side? (অন্যদিক থেকে টানলে কী বদলায়?)</li><li>What is the difference between pushing and pulling? (ধাক্কা ও টানের পার্থক্য কী?)</li></ul>
+ <h3>শিক্ষার্থীরা যা লক্ষ করবে</h3><ul><li>তীরের দিক ও গাড়ির চলার দিক একই।</li><li>ঘর্ষণ বেশি হলে গাড়ি কম দূরে যায়।</li></ul>
+ <h3>প্রত্যাশিত ফল</h3><p>শিক্ষার্থীরা নিজের ভাষায় Push ও Pull-এর উদাহরণ দিতে পারবে। <b>প্রজেক্টর মোডে</b> শুধু সিমুলেশন বড় করে দেখানো হয়।</p>
+</details>
+</main>
+<footer class="nop">Genex Model School · Learning by Doing | Empowering Generations</footer>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const MU={low:10,mid:22,high:50}, FN={low:'Low',mid:'Medium',high:'High'};
+const MAXV=60, MINP=12, MAXP=88, X=p=>60+p*6.8, CY=211, HY=189;
+const st={pos:50,v:0,dir:0,t:0,mode:null,str:3,fric:'mid',paused:false,n:0,raf:0,last:0,fade:0,wa:0};
+
+/* ruler */
+(function(){const r=$('ruler');for(let p=0;p<=100;p+=10){const l=document.createElementNS(NS,'line');l.setAttribute('x1',X(p));l.setAttribute('x2',X(p));l.setAttribute('y1',274);l.setAttribute('y2',284);l.setAttribute('stroke','#172B4D');r.appendChild(l);
+const t=document.createElementNS(NS,'text');t.setAttribute('x',X(p));t.setAttribute('y',299);t.textContent=p;r.appendChild(t);}
+const u=document.createElementNS(NS,'text');u.setAttribute('x',400);u.setAttribute('y',315);u.textContent='অবস্থান (units)';r.appendChild(u);})();
+
+let toastT=0;
+function toast(m){const e=$('toast');e.textContent=m;e.style.background='#D9F1FF';clearTimeout(toastT);toastT=setTimeout(()=>e.style.background='',500);}
+
+/* history */
+function addHist(mode){st.n++;const li=document.createElement('li');li.className=mode;
+ li.textContent=`Experiment ${st.n} — ${mode==='push'?'PUSH — Right':'PULL — Left'} (বল ${st.str}, ${FN[st.fric]})`;
+ const h=$('hist');h.insertBefore(li,h.firstChild);}
+
+/* apply force */
+function apply(mode){
+ if(st.paused){toast('সিমুলেশন থেমে আছে। আগে "চালু করো" চাপো।');return;}
+ if(st.t>0)return;               // ignore double-triggers while a force pulse is active
+ st.mode=mode;st.dir=mode==='push'?1:-1;st.t=0.35;st.fade=1;
+ addHist(mode);
+ toast(mode==='push'?'চমৎকার! তুমি গাড়িটিকে ধাক্কা দিয়েছ। গাড়িটি সামনে এগিয়ে যাচ্ছে।':'দারুণ! তুমি গাড়িটিকে নিজের দিকে টেনেছ। গাড়িটি তোমার দিকে এগিয়ে যাচ্ছে।');
+ start();
+}
+
+/* physics step (dt in seconds) */
+function step(dt){
+ if(st.t>0){st.v+=st.dir*st.str*30*dt;st.t-=dt;if(st.t<=0)st.t=0;}
+ else{st.fade-=dt*1.2;const d=MU[st.fric]*dt;if(Math.abs(st.v)<=d||Math.abs(st.v)<0.4)st.v=0;else st.v-=Math.sign(st.v)*d;}
+ st.v=Math.max(-MAXV,Math.min(MAXV,st.v));
+ st.pos+=st.v*dt;
+ if(st.pos<MINP){st.pos=MINP;st.v=0;}else if(st.pos>MAXP){st.pos=MAXP;st.v=0;}
+ st.wa+=st.v*dt*6.8/13*57.3;
+}
+
+/* render */
+function setT(id,s){$(id).setAttribute('transform',s);}
+function render(){
+ const cx=X(st.pos),forcing=st.t>0,show=forcing||st.fade>0;
+ setT('car',`translate(${cx} ${CY})`);
+ setT('w1',`translate(-30 -2) rotate(${st.wa})`);setT('w2',`translate(30 -2) rotate(${st.wa})`);
+ // motion lines trail behind car
+ const ml=$('ml');ml.setAttribute('opacity',Math.min(1,Math.abs(st.v)/25));ml.setAttribute('transform',st.v<0?'scale(-1 1)':'');
+ // push hand: touches rear while pushing, waits behind otherwise
+ const pushing=forcing&&st.mode==='push';
+ const hx=Math.max(70,pushing?cx-60:cx-92);
+ $('handL').setAttribute('cx',hx);$('armL').setAttribute('x2',hx);
+ // pull rope: taut while pulling, slack otherwise
+ const hk=cx+54,sag=(forcing&&st.mode==='pull')?0:22;
+ $('rope').setAttribute('d',`M736 ${HY}Q${(736+hk)/2} ${HY+sag} ${hk} ${HY}`);
+ // force arrow
+ const A=$('arrow');A.setAttribute('opacity',show?(forcing?1:Math.max(0,st.fade)):0);
+ A.setAttribute('transform',`translate(${cx} 112)`);
+ $('arrowP').setAttribute('transform',`scale(${st.dir||1} 1)`);
+ $('arrowP').setAttribute('fill',st.mode==='pull'?'#E63946':'#0052CC');
+ $('chPush').classList.toggle('on',show&&st.mode==='push');$('chPull').classList.toggle('on',show&&st.mode==='pull');
+ // status
+ const av=Math.abs(st.v),right=st.v>0||(av===0&&st.dir>0),dirTxt=st.v>0?'ডানদিকে চলছে':'বামদিকে চলছে';
+ let s,lvl;
+ if(av===0&&!forcing){s='স্থির অবস্থায় আছে';lvl='At Rest (স্থির)';}
+ else if(!forcing){s='ধীরে ধীরে থেমে যাচ্ছে';lvl='Slowing Down (ধীরে থামছে)';}
+ else{s=st.dir>0?'ডানদিকে চলছে':'বামদিকে চলছে';lvl=av>=25?'Moving Fast (দ্রুত)':'Moving Slowly (ধীরে)';}
+ if(!forcing&&av>=25)lvl='Moving Fast (দ্রুত) → থামছে';
+ $('statusTxt').textContent=s;$('meter').style.width=(av/MAXV*100)+'%';
+ $('dAct').textContent=forcing?(st.mode==='push'?'Push':'Pull'):'None';
+ $('dForce').textContent=forcing?(st.dir>0?'Right →':'← Left'):'None';
+ $('dMove').textContent=av===0?'—':(st.v>0?'Right → (ডান)':'← Left (বাম)');
+ $('dSpeed').textContent=lvl;$('dFric').textContent=FN[st.fric];$('dPos').textContent=st.pos.toFixed(1);
+}
+
+/* animation loop: runs only while something is moving */
+function loop(ts){
+ if(!st.last)st.last=ts;
+ const dt=Math.min(0.05,(ts-st.last)/1000);st.last=ts;
+ step(dt);render();
+ if(st.t>0||st.v!==0||st.fade>0)st.raf=requestAnimationFrame(loop);else{st.raf=0;st.last=0;render();}
+}
+function start(){if(!st.raf&&!st.paused){st.last=0;st.raf=requestAnimationFrame(loop);}}
+function stop(){if(st.raf){cancelAnimationFrame(st.raf);st.raf=0;st.last=0;}}
+
+/* controls */
+$('bPush').addEventListener('click',()=>apply('push'));
+$('bPull').addEventListener('click',()=>apply('pull'));
+document.addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('input,button,summary'))return;
+ if(e.key==='ArrowRight')apply('push');else if(e.key==='ArrowLeft')apply('pull');});
+$('str').addEventListener('input',e=>{st.str=+e.target.value;$('strV').textContent=st.str;});
+$('fr').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;st.fric=b.dataset.f;
+ [...$('fr').children].forEach(x=>x.setAttribute('aria-pressed',x===b));render();
+ toast({low:'কম ঘর্ষণ: গাড়ি অনেক দূর যাবে।',mid:'মাঝারি ঘর্ষণ: গাড়ি মাঝারি দূরত্ব যাবে।',high:'বেশি ঘর্ষণ: গাড়ি তাড়াতাড়ি থেমে যাবে।'}[st.fric]);});
+$('bReset').addEventListener('click',()=>{stop();Object.assign(st,{pos:50,v:0,dir:0,t:0,mode:null,fade:0,wa:0});render();toast('সব কিছু আবার শুরুর অবস্থায় ফিরে এসেছে।');});
+$('bPause').addEventListener('click',e=>{st.paused=!st.paused;e.target.setAttribute('aria-pressed',st.paused);
+ if(st.paused){stop();e.target.textContent='▶ চালু করো (Resume)';toast('সিমুলেশন থেমে আছে।');}
+ else{e.target.textContent='⏸ থামাও (Pause)';toast('সিমুলেশন চালু হয়েছে।');start();}});
+$('bClear').addEventListener('click',()=>{$('hist').innerHTML='';st.n=0;});
+$('bProj').addEventListener('click',e=>{const on=document.body.classList.toggle('proj');e.currentTarget.setAttribute('aria-pressed',on);});
+$('bFull').addEventListener('click',()=>{const d=document;if(d.fullscreenElement)d.exitFullscreen();else if(d.documentElement.requestFullscreen)d.documentElement.requestFullscreen().catch(()=>{});});
+document.addEventListener('visibilitychange',()=>{document.hidden?stop():start();});
+window.addEventListener('resize',render);
+
+/* ===== generic one-at-a-time quiz ===== */
+function Quiz(el,qs,okMsg){
+ let i=0,s=0,locked=false;
+ function show(){
+  const n=qs.length;
+  if(i>=n){el.innerHTML=`<div class="fin"><div class="n">${s} / ${n}</div><p>${s===n?'অসাধারণ! তুমি সত্যিকারের Expert! 🏆':s>=n/2?'খুব ভালো! আবার চেষ্টা করলে আরও ভালো হবে।':'চেষ্টা চালিয়ে যাও! সিমুলেশনে আবার পরীক্ষা করো।'}</p><button class="sm blue">↻ আবার খেলো (Replay)</button></div>`;
+   el.querySelector('button').onclick=()=>{i=0;s=0;show();};return;}
+  const q=qs[i];locked=false;
+  el.innerHTML=`<div class="qhead"><span>প্রশ্ন ${i+1} / ${n}</span><span>স্কোর: ${s}</span></div><div class="bar"><i style="width:${i/n*100}%"></i></div><h3>${q.q}</h3><div class="opts"></div><div class="qfb" aria-live="polite"></div>`;
+  const box=el.querySelector('.opts');
+  q.o.forEach((t,k)=>{const b=document.createElement('button');b.className='opt';b.textContent='ABC'[k]+'. '+t;
+   b.onclick=()=>{if(locked)return;locked=true;const good=k===q.a;if(good)s++;
+    b.classList.add(good?'ok':'no');if(!good)box.children[q.a].classList.add('ok');
+    el.querySelector('.qfb').textContent=(good?'✅ সঠিক! ':'❌ ভুল। সঠিক উত্তর: '+'ABC'[q.a]+'. ')+q.e;
+    el.querySelector('.qhead span:last-child').textContent='স্কোর: '+s;
+    const nx=document.createElement('button');nx.className='sm blue';nx.textContent=i===n-1?'ফলাফল দেখো':'পরের প্রশ্ন →';
+    nx.onclick=()=>{i++;show();};el.appendChild(nx);nx.focus();};
+   box.appendChild(b);});
+ }
+ show();
+}
+Quiz($('predict'),[
+ {q:'তুমি যদি একটি স্থির খেলনা গাড়িকে ধাক্কা দাও, কী হবে?',o:['গাড়িটি চলতে শুরু করবে।','গাড়িটি অদৃশ্য হবে।','গাড়িটি উপরে উড়ে যাবে।'],a:0,e:'ধাক্কা (বল) স্থির বস্তুকে গতি দেয়।'},
+ {q:'একটি দড়ি দিয়ে গাড়িটিকে নিজের দিকে টানলে কী হবে?',o:['গাড়িটি তোমার দিকে আসবে।','গাড়িটি নিজে নিজে হারিয়ে যাবে।','গাড়ির রং পরিবর্তন হবে।'],a:0,e:'টান বস্তুকে প্রয়োগকারীর দিকে আনে।'}]);
+Quiz($('quiz'),[
+ {q:'Force কী?',o:['ধাক্কা বা টান','আলো','শব্দ'],a:0,e:'Force হলো ধাক্কা বা টান।'},
+ {q:'কোনটি Push-এর উদাহরণ?',o:['দড়ি টানা','দরজা ঠেলে খোলা','ব্যাগ নিজের দিকে টানা'],a:1,e:'দরজা ঠেলে খোলা হলো ধাক্কা।'},
+ {q:'কোনটি Pull-এর উদাহরণ?',o:['ফুটবলে লাথি মারা','টেবিল ঠেলা','দড়ি টানা'],a:2,e:'দড়ি টানা হলো টান।'},
+ {q:'ধাক্কা বা টান প্রয়োগ করলে কী হতে পারে?',o:['বস্তুর গতি বা দিক পরিবর্তন হতে পারে','সব বস্তু অদৃশ্য হয়','সব বস্তু বড় হয়'],a:0,e:'বল বস্তুর গতি ও দিক বদলাতে পারে।'},
+ {q:'Push-এর ক্ষেত্রে বস্তু সাধারণত কোন দিকে সরে?',o:['প্রয়োগকারী থেকে দূরে','প্রয়োগকারীর দিকে','সবসময় উপরে'],a:0,e:'ধাক্কায় বস্তু প্রয়োগকারী থেকে দূরে যায়।'}]);
+
+/* ===== real-life challenge cards ===== */
+(function(){
+ const D=[['🚪','দরজা ঠেলে খোলা','push','দরজা তোমার থেকে দূরে সরে, তাই এটি ধাক্কা।'],
+  ['🚪','দরজা নিজের দিকে টেনে বন্ধ করা','pull','দরজা তোমার দিকে আসে, তাই এটি টান।'],
+  ['⚽','ফুটবলে লাথি মারা','push','বল তোমার থেকে দূরে যায়, তাই এটি ধাক্কা।'],
+  ['🪢','দড়ি টানা','pull','দড়ি তোমার দিকে আসে, তাই এটি টান।'],
+  ['🛒','শপিং ট্রলি সামনে ঠেলা','push','ট্রলি তোমার থেকে দূরে যায়, তাই এটি ধাক্কা।'],
+  ['🧳','স্যুটকেস টেনে নেওয়া','pull','স্যুটকেস তোমার পিছনে আসে, তাই এটি টান।']];
+ let sc=0;const g=$('rl');
+ D.forEach(d=>{const c=document.createElement('div');c.className='rl';
+  c.innerHTML=`<div class="em" aria-hidden="true">${d[0]}</div><b>${d[1]}</b><div class="two"><button style="background:#0052CC" data-a="push">PUSH</button><button style="background:#E63946" data-a="pull">PULL</button></div><div class="fb" aria-live="polite">PUSH না PULL?</div>`;
+  let done=false;
+  c.querySelectorAll('button').forEach(b=>b.onclick=()=>{if(done)return;done=true;const ok=b.dataset.a===d[2];if(ok){sc++;$('rlScore').textContent=sc;}
+   c.classList.add(ok?'good':'bad');c.querySelector('.fb').textContent=(ok?'✅ সঠিক! ':'❌ ভুল! সঠিক উত্তর: '+d[2].toUpperCase()+'। ')+d[3];});
+  g.appendChild(c);});
+})();
+
+render();
+})();
+</script>
+</body>
+</html>
